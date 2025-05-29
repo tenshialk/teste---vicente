@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from models.mensagem import db  
 from controller.mensagem import mensagem_bp
 
@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 # Define a URL do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mensagens.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa o banco de dados com a aplicação Flask
 db.init_app(app)
@@ -13,17 +14,13 @@ db.init_app(app)
 # Registra o Blueprint mensagem_bp na aplicação
 app.register_blueprint(mensagem_bp)
 
-mensagens=[
-    { 
-        "nome" :"roberta", "id": 1,"mensagem":"ola"     
-    },
-    
-]
-
-
+@app.route('/mensagem', methods=['GET'])
+def mensagem():
+    nome = request.args.get('nome', 'Mundo')
+    return jsonify({'mensagem': f'Olá, {nome}!'})
 
 with app.app_context():
     db.create_all()
 
-
-
+if __name__ == '__main__':
+    app.run(debug=True)
